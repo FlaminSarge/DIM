@@ -41,7 +41,8 @@ export default function ItemSocketsWeapons({
   }
 
   // Separate out perks from sockets.
-  const { intrinsicSocket, perks, modSocketsByCategory } = getWeaponSockets(item)!;
+  const { intrinsicSockets, perks, modSocketsByCategory } = getWeaponSockets(item)!;
+  const intrinsicSocket = intrinsicSockets?.[0];
 
   // Improve this when we use iterator-helpers
   const mods = [...modSocketsByCategory.values()].flat();

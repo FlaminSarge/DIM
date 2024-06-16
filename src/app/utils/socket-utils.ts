@@ -104,8 +104,14 @@ export function getFirstSocketByCategoryHash(sockets: DimSockets, categoryHash: 
 }
 
 function getSocketsByPlugCategoryIdentifier(sockets: DimSockets, plugCategoryIdentifier: string) {
-  return sockets.allSockets.find((socket) =>
+  return sockets.allSockets.filter((socket) =>
     socket.plugged?.plugDef.plug.plugCategoryIdentifier.includes(plugCategoryIdentifier),
+  );
+}
+
+function getSocketsByPlugCategoryHash(sockets: DimSockets, plugCategoryHash: PlugCategoryHashes) {
+  return sockets.allSockets.filter(
+    (socket) => socket.plugged?.plugDef.plug.plugCategoryHash === plugCategoryHash,
   );
 }
 
@@ -119,6 +125,10 @@ export const getWeaponArchetype = (item: DimItem): PluggableInventoryItemDefinit
   getWeaponArchetypeSocket(item)?.plugged?.plugDef;
 
 export function getIntrinsicArmorPerkSocket(item: DimItem): DimSocket | undefined {
+  return getIntrinsicArmorPerkSockets(item)?.[0];
+}
+
+export function getIntrinsicArmorPerkSockets(item: DimItem): DimSocket[] | undefined {
   if (item.bucket.inArmor && item.sockets) {
     const largePerkCategory = item.sockets.categories.find(
       (c) => c.category.hash === SocketCategoryHashes.ArmorPerks_LargePerk,
@@ -129,10 +139,28 @@ export function getIntrinsicArmorPerkSocket(item: DimItem): DimSocket | undefine
         largePerkCategory.socketIndexes.at(-1)!,
       );
       if (largePerkSocket?.plugged?.plugDef.displayProperties.name) {
-        return largePerkSocket;
+        return [largePerkSocket];
       }
     }
-    return getSocketsByPlugCategoryIdentifier(item.sockets, 'enhancements.exotic');
+    // covers aeon cases
+    const exoticSockets = getSocketsByPlugCategoryIdentifier(item.sockets, 'enhancements.exotic');
+    if (exoticSockets.length > 0) {
+      return exoticSockets;
+    }
+    // exotic class items use this socket, being very defensive about this check to avoid any side effects
+    if (item.bucket.hash === BucketHashes.ClassArmor) {
+      const intrinsicSockets = getSocketsByPlugCategoryHash(
+        item.sockets,
+        PlugCategoryHashes.Intrinsics,
+      );
+      if (intrinsicSockets.length > 0) {
+        // forcing reusable=false makes these behave like normal exotic perks
+        return intrinsicSockets
+          .filter((s) => s.visibleInGame)
+          .map((s) => (s.isReusable = false) || s);
+      }
+    }
+    return undefined;
   }
 }
 
@@ -297,7 +325,7 @@ export function isSocketEmpty(socket: DimSocket) {
 }
 
 export interface DisplayedSockets {
-  intrinsicSocket?: DimSocket;
+  intrinsicSockets?: DimSocket[];
   perks?: DimSocketCategory;
   modSocketsByCategory: Map<DimSocketCategory, DimSocket[]>;
 }
@@ -362,7 +390,7 @@ export function getWeaponSockets(
   );
 
   return {
-    intrinsicSocket: archetypeSocket,
+    intrinsicSockets: archetypeSocket ? [archetypeSocket] : undefined,
     perks,
     modSocketsByCategory,
   };
@@ -376,7 +404,7 @@ export function getGeneralSockets(
     return undefined;
   }
 
-  const intrinsicSocket = getIntrinsicArmorPerkSocket(item);
+  const intrinsicSockets = getIntrinsicArmorPerkSockets(item);
 
   const isAllowedCategory = (c: DimSocketCategory) =>
     // hide if this is the energy slot. it's already displayed in ItemDetails
@@ -387,7 +415,7 @@ export function getGeneralSockets(
     c.category.uiCategoryStyle !== ARMOR_STAT_CATEGORYSTYLE;
 
   const isAllowedSocket = (socketInfo: DimSocket) =>
-    socketInfo.socketIndex !== intrinsicSocket?.socketIndex &&
+    !intrinsicSockets?.find((s) => s.socketIndex === socketInfo.socketIndex) &&
     (!excludeEmptySockets || !isSocketEmpty(socketInfo)) &&
     // don't include these weird little solstice stat rerolling mechanic sockets
     !isEventArmorRerollSocket(socketInfo) &&
@@ -414,7 +442,7 @@ export function getGeneralSockets(
   );
 
   return {
-    intrinsicSocket,
+    intrinsicSockets,
     modSocketsByCategory,
   };
 }
