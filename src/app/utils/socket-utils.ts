@@ -148,7 +148,7 @@ export function getIntrinsicArmorPerkSockets(item: DimItem): DimSocket[] | undef
       return exoticSockets;
     }
     // exotic class items use this socket, being very defensive about this check to avoid any side effects
-    if (item.bucket.hash === BucketHashes.ClassArmor) {
+    if (item.isExotic && item.bucket.hash === BucketHashes.ClassArmor) {
       const intrinsicSockets = getSocketsByPlugCategoryHash(
         item.sockets,
         PlugCategoryHashes.Intrinsics,
