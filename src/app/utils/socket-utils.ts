@@ -154,7 +154,7 @@ export function getIntrinsicArmorPerkSockets(item: DimItem): DimSocket[] | undef
         PlugCategoryHashes.Intrinsics,
       );
       if (intrinsicSockets.length > 0) {
-        // forcing reusable=false makes these behave like normal exotic perks
+        // force non-reusable so perk circle/tooltip are not shown
         return intrinsicSockets
           .filter((s) => s.visibleInGame)
           .map((s) => (s.isReusable = false) || s);

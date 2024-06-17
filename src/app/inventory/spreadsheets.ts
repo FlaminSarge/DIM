@@ -229,13 +229,13 @@ function buildSocketNames(item: DimItem): string[] {
   }
 
   const sockets = [];
-  const { intrinsicSocket, modSocketsByCategory, perks } = getDisplayedItemSockets(
+  const { intrinsicSockets, modSocketsByCategory, perks } = getDisplayedItemSockets(
     item,
     /* excludeEmptySockets */ true,
   )!;
 
-  if (intrinsicSocket) {
-    sockets.push(intrinsicSocket);
+  if (intrinsicSockets) {
+    sockets.push(...intrinsicSockets);
   }
 
   if (perks) {
