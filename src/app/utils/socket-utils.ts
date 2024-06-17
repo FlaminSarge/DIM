@@ -415,7 +415,7 @@ export function getGeneralSockets(
     c.category.uiCategoryStyle !== ARMOR_STAT_CATEGORYSTYLE;
 
   const isAllowedSocket = (socketInfo: DimSocket) =>
-    !intrinsicSockets?.find((s) => s.socketIndex === socketInfo.socketIndex) &&
+    !intrinsicSockets?.some((s) => s.socketIndex === socketInfo.socketIndex) &&
     (!excludeEmptySockets || !isSocketEmpty(socketInfo)) &&
     // don't include these weird little solstice stat rerolling mechanic sockets
     !isEventArmorRerollSocket(socketInfo) &&
