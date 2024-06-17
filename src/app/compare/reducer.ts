@@ -163,15 +163,16 @@ function initialCompareQuery(item: DimItem) {
   } else {
     // For D2 armor, we match by rarity, intrinsic and interesting mod sockets
     const factors = [`is:${item.tier.toLowerCase()}`];
-    const intrinsicSocket = item.sockets?.allSockets.find(
-      (socket) =>
-        socket.plugged?.plugDef.plug.plugCategoryHash === PlugCategoryHashes.Intrinsics &&
-        socket.plugged.plugDef.displayProperties.name,
-    );
-    if (intrinsicSocket) {
-      const intrinsicName = intrinsicSocket.plugged!.plugDef.displayProperties.name;
-      factors.push(`exactperk:${quoteFilterString(intrinsicName)}`);
-    }
+    item.sockets?.allSockets
+      .filter(
+        (socket) =>
+          socket.plugged?.plugDef.plug.plugCategoryHash === PlugCategoryHashes.Intrinsics &&
+          socket.plugged.plugDef.displayProperties.name,
+      )
+      .map((socket) => {
+        const intrinsicName = socket.plugged!.plugDef.displayProperties.name;
+        factors.push(`exactperk:${quoteFilterString(intrinsicName)}`);
+      });
     const modSlotMetadata = getInterestingSocketMetadatas(item);
     if (modSlotMetadata) {
       for (const m of modSlotMetadata) {
