@@ -155,10 +155,10 @@ export function getIntrinsicArmorPerkSockets(item: DimItem): DimSocket[] | undef
         PlugCategoryHashes.Intrinsics,
       );
       if (intrinsicSockets.length > 0) {
-        // force non-reusable so perk circle/tooltip are not shown
+        // create isReusable=false copy so perk circle/tooltip are not shown
         return intrinsicSockets
           .filter((s) => s.visibleInGame)
-          .map((s) => (s.isReusable = false) || s);
+          .map((s) => Object.assign({}, s, { isReusable: false }));
       }
     }
     return undefined;
