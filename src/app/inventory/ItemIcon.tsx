@@ -136,6 +136,8 @@ export function DefItemIcon({
   const needsStrandColorFix =
     itemDef.plug && strandWrongColorPlugCategoryHashes.includes(itemDef.plug.plugCategoryHash);
 
+  const isMw = itemDef.plug?.plugCategoryIdentifier.includes('masterworks');
+
   const itemImageStyles = clsx(
     'item-img',
     className,
@@ -154,7 +156,15 @@ export function DefItemIcon({
   return (
     <>
       <BungieImage src={itemDef.displayProperties.icon} className={itemImageStyles} alt="" />
-      {iconOverlay && <BungieImage src={iconOverlay} className={styles.iconOverlay} alt="" />}
+      {iconOverlay && (
+        <BungieImage
+          src={iconOverlay}
+          className={clsx(styles.iconOverlay, {
+            [styles.masterworkStat]: isMw,
+          })}
+          alt=""
+        />
+      )}
       {energyCost !== undefined && energyCost > 0 && (
         <>
           <div className={styles.energyCostOverlay} />

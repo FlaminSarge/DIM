@@ -6,6 +6,7 @@ $exoticBg: #ceae33;
 $basicBg: #c3bcb4;
 $rareBg: #5076a3;
 $commonBg: #366f42;
+$masterworkBorder: 3 / 96;
 
 // The image within the overall item. Global because it's referenced by other styles.
 :global(.item-img) {
@@ -225,17 +226,23 @@ $rgb-masterworked: dim-hex-to-rgb-values($stat-masterworked);
 }
 
 .iconOverlay {
-  // TODO: In Edge of Fate this overlay changed, but it's actually rendered at
-  // the incorrect size vs. in-game.
   top: 0;
   left: 0;
-  height: calc(var(--item-size) - #{2 * $item-border-width});
-  width: calc(var(--item-size) - #{2 * $item-border-width});
+  height: var(--item-size);
+  width: var(--item-size);
   background-size: contain;
   position: absolute;
   pointer-events: none;
 }
-
+.masterworkStat {
+  // TODO: In Edge of Fate this overlay changed, but it's actually rendered at
+  // the incorrect size vs. in-game (they included a grey border that shouldn't be there).
+  // We clip it off for now.
+  clip-path: rect(
+    calc(var(--item-size) * ($masterworkBorder)) calc(var(--item-size) * (1 - $masterworkBorder))
+      calc(var(--item-size) * (1 - $masterworkBorder)) calc(var(--item-size) * ($masterworkBorder))
+  );
+}
 .energyCostOverlay {
   position: absolute;
   inset: $item-border-width $item-border-width $item-border-width $item-border-width;
@@ -277,7 +284,7 @@ $rgb-masterworked: dim-hex-to-rgb-values($stat-masterworked);
 .tierPipContainer {
   position: absolute;
   top: calc(var(--item-size) * 0.29);
-  left: calc(var(--item-size) * 0.11);
+  left: calc(var(--item-size) * 0.12);
   height: calc(var(--item-size) * 0.42);
   display: flex;
   flex-direction: column;
